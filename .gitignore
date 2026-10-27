@@ -1,0 +1,14 @@
+# Всё, что не нужно для работы расширения
+dist/
+tests/
+scripts/
+docs/
+.taste-skill/
+node_modules/
+package.json
+package-lock.json
+CHANGELOG.md
+.browser-test-*/
+.live-test-*/
+*.maFile
+*.zip

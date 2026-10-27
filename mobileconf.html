@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ru" class="responsive">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Подтверждения Steam</title>
+  <link rel="icon" href="icon48.png">
+  <link rel="stylesheet" href="confirmations.css">
+  <script src="confirmations.js" defer></script>
+</head>
+<body>
+  <header><h1>Подтверждения</h1><p id="account"></p><button id="refresh" type="button">Обновить</button></header>
+  <main>
+    <p id="status" role="status" aria-live="polite">Загрузка…</p>
+    <div id="mobileconf_list"></div>
+  </main>
+  <footer>
+    <label><input id="select-all" type="checkbox"> Выбрать все</label>
+    <button id="cancel" type="button" disabled>Отклонить</button>
+    <button id="allow" type="button" disabled>Подтвердить</button>
+  </footer>
+</body>
+</html>

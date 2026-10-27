@@ -1,0 +1,65 @@
+﻿<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Steam User Manager</title>
+  <link rel="icon" href="../icon48.png">
+  <script src="layout.js"></script>
+  <link rel="stylesheet" href="popup.css">
+  <script src="popup.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <a class="brand" href="popup.html" aria-label="Steam User Manager, аккаунты"><img src="svg/sum.svg" alt="SUM"><span>Steam User Manager</span></a>
+      <button id="expand" class="icon-button" title="Открыть в отдельной вкладке" aria-label="Открыть в отдельной вкладке"><svg><use href="icons.svg#open"/></svg></button>
+    </header>
+    <nav class="navigation" aria-label="Разделы">
+      <button class="nav-button" data-view="accounts" aria-current="page">Аккаунты</button>
+      <button class="nav-button" data-view="backup">Резервная копия</button>
+    </nav>
+    <main id="main">
+      <section id="accounts-view" class="view">
+        <div class="title-row"><div><h1>Аккаунты</h1><p id="account-count" class="muted">Загрузка аккаунтов…</p></div><button id="add-account" class="button primary"><svg><use href="icons.svg#plus"/></svg>Добавить</button></div>
+        <div class="search-field"><svg><use href="icons.svg#search"/></svg><input id="search_acc" type="search" aria-label="Поиск аккаунтов" placeholder="Найти по имени или логину" autocomplete="off"><kbd>/</kbd></div>
+        <div id="accounts-list" class="users" aria-label="Сохранённые аккаунты" aria-busy="true"></div>
+        <div id="empty-state" class="empty-state" hidden><h2>Ваш первый аккаунт Steam</h2><p>Добавьте аккаунт или восстановите все аккаунты из JSON-файла.</p><div class="actions"><button id="empty-add" class="button primary">Добавить аккаунт</button><button id="empty-import" class="button">Импортировать JSON</button></div></div>
+        <p id="no-results" class="empty-state" hidden>Аккаунты не найдены. Попробуйте другой запрос.</p>
+      </section>
+      <section id="backup-view" class="view" hidden>
+        <div class="title-row"><div><h2>Резервная копия</h2><p class="muted">Все аккаунты в одном JSON-файле.</p></div></div>
+        <div class="backup-grid">
+          <section class="backup-block"><div class="section-heading"><svg><use href="icons.svg#download"/></svg><h2>Экспорт аккаунтов</h2></div><p>Логины, пароли, Steam Guard, ссылки и сохранённые сессии.</p><p id="export-count" class="backup-meta">0 аккаунтов</p><button id="export-accounts" class="button primary"><svg><use href="icons.svg#download"/></svg>Скачать .json</button><p class="privacy-note">Файл содержит пароли и секреты Steam Guard. Храните его в надёжном месте.</p></section>
+          <section class="backup-block"><div class="section-heading"><svg><use href="icons.svg#upload"/></svg><h2>Импорт аккаунтов</h2></div><p>Восстановите аккаунты из резервной копии Steam User Manager.</p><button id="choose-backup" class="button"><svg><use href="icons.svg#file"/></svg>Выбрать .json</button><input id="backup-file" type="file" accept=".json,application/json" hidden><p class="privacy-note">Перед импортом вы увидите список аккаунтов. Совпадения по умолчанию пропускаются.</p>
+            <div id="import-preview" hidden><div class="selected-file"><svg><use href="icons.svg#file"/></svg><span id="import-filename"></span></div><label class="checkbox-row"><input id="overwrite-accounts" type="checkbox"><span>Обновить совпадающие аккаунты<small>Остальные сохранённые аккаунты останутся на месте.</small></span></label><p id="import-summary" class="backup-meta"></p><ul id="import-accounts" class="import-accounts"></ul><button id="apply-import" class="button primary" disabled>Импортировать</button></div>
+            <p id="backup-error" class="field-error" role="alert" hidden></p><p id="backup-result" role="status" hidden></p>
+          </section>
+        </div>
+        <section class="backup-inventory"><h2>Что попадёт в файл</h2><dl id="backup-inventory"></dl></section>
+      </section>
+    </main>
+    <footer class="app-footer"><span id="footer-hint">«Открыть» — отдельная сессия Steam</span><span id="app-version"></span></footer>
+  </div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="account-menu" class="account-menu" role="menu" hidden></div>
+  <dialog id="account-dialog" class="sheet"><form id="account-form">
+    <div class="dialog-heading"><div><h2 id="account-form-title">Добавить аккаунт</h2><p class="muted">Войдите в Steam со своим логином.</p></div><button class="icon-button" type="button" data-close aria-label="Закрыть"><svg><use href="icons.svg#close"/></svg></button></div>
+    <label class="field">Логин Steam<input id="account_name" name="account_name" autocomplete="username" required maxlength="64"></label>
+    <label class="field">Пароль<div class="password-field"><input id="password" name="password" type="password" autocomplete="current-password"><button id="toggle-password" type="button">Показать</button></div></label>
+    <label class="field">Код Steam Guard <span class="optional">необязательно</span><input id="twofacode" name="twofacode" maxlength="7" autocomplete="one-time-code" placeholder="Можно подтвердить вход в приложении Steam"></label>
+    <details id="authenticator-fields"><summary>Данные аутентификатора</summary><p class="muted">Импортируйте maFile или заполните поля вручную. При редактировании пустые поля сохраняют прежние значения.</p><label class="field">Shared secret<input id="shared_secret" name="shared_secret" type="password" autocomplete="off" maxlength="128"></label><label class="field">Identity secret<input id="identity_secret" name="identity_secret" type="password" autocomplete="off" maxlength="128"></label><label class="field">Device ID<input id="device_id" name="device_id" type="password" autocomplete="off" maxlength="64" placeholder="android:…"></label></details>
+    <input id="mafile-input" type="file" accept=".maFile,.json,application/json" hidden>
+    <p id="account-form-error" class="field-error" role="alert" hidden></p>
+    <div class="dialog-actions"><button id="import-mafile" type="button" class="button">Импорт maFile</button><button id="save" class="button primary" type="submit">Войти в Steam</button></div>
+  </form></dialog>
+  <dialog id="auth-dialog" class="sheet auth-sheet"><div class="dialog-heading"><div><h2>Вход в Steam</h2><p id="auth-login" class="muted"></p></div><button class="icon-button" data-cancel-auth aria-label="Отменить вход"><svg><use href="icons.svg#close"/></svg></button></div><div id="auth-progress" class="auth-progress"><span class="spinner" aria-hidden="true"></span><span>Подключение к Steam</span></div><p id="auth-message" class="auth-message" role="status"></p><form id="auth-code-form"><label class="field">Код подтверждения<input id="auth-code" autocomplete="one-time-code" maxlength="7" required></label><button class="button primary" type="submit">Подтвердить</button></form><div class="dialog-actions"><button class="button" data-cancel-auth>Отмена</button><button id="retry-auth" class="button primary" hidden>Повторить вход</button></div></dialog>
+  <dialog id="detail-dialog" class="sheet detail-sheet"><div class="dialog-heading"><div class="detail-identity"><img id="detail-avatar" class="avatar" alt=""><div><h2 id="detail-name"></h2><p id="detail-login" class="muted"></p></div></div><button class="icon-button" data-close aria-label="Закрыть"><svg><use href="icons.svg#close"/></svg></button></div><div class="detail-actions"><button id="detail-open" class="button primary">Открыть Steam</button><button id="detail-switch" class="button">В браузер</button><button id="detail-confirm" class="button">Подтверждения</button></div>
+    <section class="guard-panel"><div class="section-heading"><svg><use href="icons.svg#shield"/></svg><h3>Steam Guard</h3><span id="guard-time" class="muted"></span></div><button id="copy-guard" class="guard-copy" title="Скопировать код"><span id="guard-code">—</span><svg><use href="icons.svg#copy"/></svg></button><div class="guard-track"><div id="guard-fill"></div></div><p id="guard-help" class="muted"></p></section>
+    <div class="detail-meta"><span>SteamID</span><button id="copy-steamid" class="text-button"></button></div>
+    <section class="bookmarks"><div class="section-heading"><h3>Ссылки аккаунта</h3></div><div id="bookmark-list"></div><form id="bookmark-form" class="joined-field"><label class="sr-only" for="bookmark-url">Новая ссылка</label><input id="bookmark-url" type="url" placeholder="https://steamcommunity.com/…" required><button class="button" type="submit" aria-label="Добавить ссылку"><svg><use href="icons.svg#plus"/></svg></button></form><p id="bookmark-error" class="field-error" role="alert" hidden></p></section>
+    <div class="detail-management"><button id="detail-edit" class="button">Редактировать</button><button id="detail-reauth" class="button">Войти заново</button><button id="detail-refresh" class="icon-button" title="Обновить профиль" aria-label="Обновить профиль"><svg><use href="icons.svg#refresh"/></svg></button></div><div class="danger-actions"><button id="detail-clear" class="text-button">Очистить сессию</button><button id="detail-delete" class="text-button danger">Удалить аккаунт</button></div>
+  </dialog>
+  <dialog id="confirm-dialog" class="sheet confirm-sheet"><h2 id="confirm-title"></h2><p id="confirm-message" class="muted"></p><div class="dialog-actions"><button id="confirm-no" class="button">Отмена</button><button id="confirm-yes" class="button primary">Подтвердить</button></div></dialog>
+</body>
+</html>

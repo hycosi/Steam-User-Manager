@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "minimum_chrome_version": "120",
+  "name": "Steam User Manager",
+  "short_name": "SUM",
+  "version": "0.2.6",
+  "description": "Manage Steam accounts, isolated Steam tabs, Steam Guard codes and mobile confirmations.",
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_icon": "icon128.png",
+    "default_popup": "popup/popup.html",
+    "default_title": "SUM"
+  },
+  "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
+  "permissions": ["tabs", "storage", "cookies", "alarms", "webRequest", "declarativeNetRequestWithHostAccess"],
+  "host_permissions": ["https://*.steamcommunity.com/*", "https://*.steampowered.com/*", "https://*.steam.tv/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://*.steamcommunity.com/*", "https://*.steampowered.com/*", "https://*.steam.tv/*"],
+      "js": ["core.js", "page-session.js"],
+      "world": "MAIN",
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": ["https://*.steamcommunity.com/*", "https://*.steampowered.com/*", "https://*.steam.tv/*"],
+      "js": ["script.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'" }
+}
